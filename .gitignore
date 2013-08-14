@@ -4,3 +4,12 @@
 *.jar
 *.war
 *.ear
+*.wav
+java.io.tmpdir/
+bin/
+.classpath
+.settings/
+.metadata/
+TarsosSegmenter.jar
+TarsosSegmenterDSP.jar
+
