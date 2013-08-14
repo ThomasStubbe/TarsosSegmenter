@@ -677,7 +677,6 @@ public class AASModel {
     }
     
     private void addFeaturesToFrame(int frameNr, int featureOrigin, float[] features){
-    	System.out.println(frameNr + "/" + (this.amountOfFrames-1));
     	if (frameNr < 0 || frameNr >= this.amountOfFrames){
     		throw new RuntimeException("Framenumber must be >= 0 and < the amount of frames");
     	}
