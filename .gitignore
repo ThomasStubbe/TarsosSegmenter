@@ -12,4 +12,5 @@ bin/
 .metadata/
 TarsosSegmenter.jar
 TarsosSegmenterDSP.jar
+.project
 
