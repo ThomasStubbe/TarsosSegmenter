@@ -15,6 +15,8 @@ import be.hogent.tarsos.tarsossegmenter.util.configuration.Configuration;
 import be.hogent.tarsos.tarsossegmenter.util.io.FileUtils;
 import be.hogent.tarsos.transcoder.ffmpeg.EncoderException;
 import be.hogent.tarsos.dsp.AudioDispatcher;
+import be.hogent.tarsos.dsp.AudioEvent;
+import be.hogent.tarsos.dsp.AudioProcessor;
 import be.hogent.tarsos.dsp.AutoCorrelation;
 import be.hogent.tarsos.dsp.ConstantQ;
 import be.hogent.tarsos.dsp.mfcc.MFCC;
@@ -41,19 +43,15 @@ import javax.swing.event.EventListenerList;
 
 public class AASModel {
 
+	public static final int FEATURE_ORIGIN_MFCC = 0;
+	public static final int FEATURE_ORIGIN_CQT = 1;
+	public static final int FEATURE_ORIGIN_AUTOCORRELATIE = 2;
+	
 	public static final float CQT_THRESHOLD = 0.0008f;
     public static float MAX_SCALE_VALUE = 1000;
     public static final int MACRO_LEVEL = 0;
     public static final int MESO_LEVEL = 1;
     public static final int MICRO_LEVEL = 2;
-//    public static final String RESOURCESPATH = "resources/";
-//    public static final String AUDIOFILESPATH = RESOURCESPATH + "structureset/";
-//    public static final String AUDIOFILESPATH2 = RESOURCESPATH + "structureset2/";
-//    public static final String CONFIGURATIONPATH = RESOURCESPATH + "configuration/";
-//    public static final String SEGMENTATIONPATH = AUDIOFILESPATH + "SegmentationFiles/";
-//    public static final String GROUNDTRUTHPATH = SEGMENTATIONPATH + "GroundTruth/";
-    private String segmenationFileLocation;
-    private String segmenationRefFileLocation;
     private boolean useMFCC;
     private boolean useAutoCorrelation;
     private boolean useCQT;
@@ -69,40 +67,24 @@ public class AASModel {
     private int melfilters;
     private int cqtBins;
     private AudioDispatcher ad;
-    //CoeficientenMatrices
     private float[][] mfccs;
     private float[][] cqtcs;
-    private float[] autoCorrelationcs;
+    private float[][] autoCorrelationcs;
     private float[][] similarityMatrix;
     private float[][] resultMatrix;
     private float[][] noveltyScores;
     private EventListenerList modelListenerList = new EventListenerList();
     private EventListenerList audioFileListenerList = new EventListenerList();
-//    private int macroSegmentationIndex;
-//    private int mesoSegmentationIndex;
-//    private int microSegmentationIndex;
-//    private ArrayList<ArrayList<SegmentationPart>> bestMacroSegmentations;
-//    private ArrayList<ArrayList<SegmentationPart>> bestMesoSegmentations;
-//    private ArrayList<ArrayList<SegmentationPart>> bestMicroSegmentations;
     private boolean macroEnabled;
     private boolean mesoEnabled;
     private boolean microEnabled;
     private static AASModel instance;
     private boolean guiEnabled;
     private boolean onlyStructureDetection;
-    //private int segmentationLevel;
     private Segmentation segmentation;
-    public static final boolean test = true;
+    
 
-//    public int getSegmentationLevel() {
-//        return segmentationLevel;
-//    }
-//    public void setSegmentationLevel(int segmentationLevel) {
-//        this.segmentationLevel = segmentationLevel;
-//    }
-//    public SegmentationList getActiveSegmentation() {
-//        return segmentation.getSegmentation();
-//    }
+
     public static AASModel getInstance() {
         if (instance == null) {
             instance = new AASModel();
@@ -206,49 +188,82 @@ public class AASModel {
             try {
                 File file = new File(audioFile.transcodedPath());
                     ad = AudioDispatcher.fromFile(file, audioFile.fileFormat().getFrameLength(), 0);
+                    ad.setStepSizeAndOverlap(frameSize, overlapping);
             } catch (UnsupportedAudioFileException | IOException e) {
                 JOptionPane.showMessageDialog(TarsosSegmenterGui.getInstance(), "Could not transcode audiofile: make sure it is an audiofile and that you have access/rights to the file", "Error", JOptionPane.ERROR_MESSAGE);
             }
-
-            MFCC mfccAD = null;
-            ConstantQ cqtAD = null;
-            AutoCorrelation acAD = null;
+            float durationInFrames = ((float)ad.durationInFrames()/(float)(frameSize-overlapping+1));
+            this.amountOfFrames = (int)Math.ceil(durationInFrames);
+            final MFCC mfccAD;
+            final ConstantQ cqtAD;
+            final AutoCorrelation acAD;
 
             if (useMFCC) {
                 mfccAD = new MFCC(this.frameSize, this.sampleRate, this.melfilters, this.mfccCoef, this.lowerFilterFreq, this.upperFilterFreq);
                 ad.addAudioProcessor(mfccAD);
+                this.mfccs = new float[this.amountOfFrames][];
+            } else {
+            	mfccAD = null;
             }
             if (useAutoCorrelation) {
                 acAD = new AutoCorrelation();
                 ad.addAudioProcessor(acAD);
+                this.autoCorrelationcs = new float[this.amountOfFrames][];
+            } else {
+            	acAD = null;
             }
             if (useCQT) {
                 cqtAD = new ConstantQ(sampleRate, lowerFilterFreq, upperFilterFreq, cqtBins);
                 ad.addAudioProcessor(cqtAD);
+                this.cqtcs = new float[this.amountOfFrames][];
+            } else {
+            	cqtAD = null;
             }
-                ad.setStepSizeAndOverlap(frameSize, overlapping);
+              
+            
+            ad.addAudioProcessor(new AudioProcessor(){
+				private int count = 0;
+
+            	@Override
+				public boolean process(AudioEvent audioEvent) {
+            		
+					if (useMFCC){
+						AASModel.getInstance().addFeaturesToFrame(count, AASModel.FEATURE_ORIGIN_MFCC, mfccAD.getMFCC());
+					}
+					if (useAutoCorrelation){
+						AASModel.getInstance().addFeaturesToFrame(count, AASModel.FEATURE_ORIGIN_AUTOCORRELATIE, acAD.getValues());
+					}
+					if (useCQT){
+						AASModel.getInstance().addFeaturesToFrame(count, AASModel.FEATURE_ORIGIN_CQT, cqtAD.getMagnitudes());
+					}
+					count++;
+					return true;
+				}
+
+				@Override
+				public void processingFinished() {
+				}
+            });    
             ad.run();
 
-//            if (useMFCC) {
+            if (useMFCC) {
 //                mfccs = mfccAD.getMFCC();
-//                ad.removeAudioProcessor(mfccAD);
-//            }
-//            if (useAutoCorrelation) {
+                ad.removeAudioProcessor(mfccAD);
+            }
+            if (useAutoCorrelation) {
 //                autoCorrelationcs = acAD.getValues();
-//                ad.removeAudioProcessor(acAD);
-//            }
-//            if (useCQT) {
+                ad.removeAudioProcessor(acAD);
+            }
+            if (useCQT) {
 //                cqtcs = cqtAD.getValues();
-//                ad.removeAudioProcessor(cqtAD);
-//            }
-            mfccAD = null;
-            cqtAD = null;
-            acAD = null;
+                ad.removeAudioProcessor(cqtAD);
+            }
+
             constructSelfSimilarityMatrix();
 
-            mfccs = null;
-            autoCorrelationcs = null;
-            cqtcs = null;
+//            mfccs = null;
+//            autoCorrelationcs = null;
+//            cqtcs = null;
 
             System.gc();
 
@@ -412,7 +427,7 @@ public class AASModel {
 
                 }
                 if (useAutoCorrelation) {
-                    float temp = (float)Math.sqrt(Math.abs(autoCorrelationcs[i] - autoCorrelationcs[j]));
+                    float temp = (float)Math.sqrt(Math.abs(autoCorrelationcs[i][0] - autoCorrelationcs[j][0]));
                     //float temp = Math.abs(autoCorrelationcs[i] - autoCorrelationcs[j]);
                     acSimilarityMatrix[i][j] = temp;
                     if (temp > maxAC) {
@@ -601,7 +616,6 @@ public class AASModel {
         return microEnabled;
     }
 
-
     public void cleanMemory() {
         this.autoCorrelationcs = null;
         this.cqtcs = null;
@@ -636,10 +650,6 @@ public class AASModel {
         samplesPerPixel = (int) Math.pow(2, (int) Math.floor(Math.log(audioFile.fileFormat().getFrameLength() / 800) / Math.log(2)));
         sampleRate = audioFile.fileFormat().getFormat().getSampleRate();
         segmentation.clearAll();
-        //resetSegmentationPoints();
-//        this.macroSegmentationPoints.clear();
-//        this.mesoSegmentationPoints.clear();
-//        this.microSegmentationPoints.clear();
 
         File file = new File(audioFile.transcodedPath());
         if (guiEnabled) {
@@ -647,8 +657,6 @@ public class AASModel {
         }
 
         Object[] listeners = audioFileListenerList.getListenerList();
-        // Each listener occupies two elements - the first is the listener class
-        // and the second is the listener instance
         for (int i = 0; i < listeners.length; i += 2) {
             if (listeners[i] == AudioFileListener.class) {
                 ((AudioFileListener) listeners[i + 1]).audioFileChanged();
@@ -666,5 +674,25 @@ public class AASModel {
 
     public boolean isGuiEnabled() {
         return guiEnabled;
+    }
+    
+    private void addFeaturesToFrame(int frameNr, int featureOrigin, float[] features){
+    	System.out.println(frameNr + "/" + (this.amountOfFrames-1));
+    	if (frameNr < 0 || frameNr >= this.amountOfFrames){
+    		throw new RuntimeException("Framenumber must be >= 0 and < the amount of frames");
+    	}
+    	switch (featureOrigin){
+	    	case FEATURE_ORIGIN_MFCC :
+	    		this.mfccs[frameNr] = features;
+	    		break;
+	    	case FEATURE_ORIGIN_CQT :
+	    		this.cqtcs[frameNr] = features;
+	    		break;
+	    	case FEATURE_ORIGIN_AUTOCORRELATIE:
+	    		this.autoCorrelationcs[frameNr] = features;
+	    		break;
+	    	default:
+	    		throw new RuntimeException("Please choose a feature origin! (constant in the AASModel class)");
+    	}
     }
 }

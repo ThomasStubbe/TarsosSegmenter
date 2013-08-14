@@ -85,7 +85,7 @@ public class TarsosSegmenterGui extends JFrame implements AASModelListener, Audi
         this.setPreferredSize(new Dimension(900, 800));
         this.getContentPane().setLayout(new BorderLayout());
         this.setTitle("Tarsos - Automatic Audio Segmentation");
-        this.setIconImage(new ImageIcon(getClass().getClassLoader().getResource("be/hogent/tarsos/aas/gui/resources/tarsos_logo_small.png")).getImage());
+        this.setIconImage(new ImageIcon(getClass().getClassLoader().getResource("be/hogent/tarsos/tarsossegmenter/gui/resources/tarsos_logo_small.png")).getImage());
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         vSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
