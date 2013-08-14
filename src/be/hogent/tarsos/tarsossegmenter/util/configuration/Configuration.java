@@ -361,6 +361,7 @@ public final class Configuration {
 
     public static void configureDirectories() {
         // replace java.io.tmpdir with actual temp dir.
+    	
         for (final ConfKey confKey : ConfKey.values()) {
             String directory = Configuration.get(confKey);
             if (directory.contains("java.io.tmpdir")) {
