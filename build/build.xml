@@ -10,6 +10,7 @@
 
 	<target name="clean">
 		<delete dir="../bin"/>
+		<delete dir="../doc" />
 	</target>
 
 	<target name="compile">
@@ -61,6 +62,50 @@
 			<fileset dir="../src">
 				<include name="**/*.java"/>
 			</fileset>
+		</jar>
+	</target>
+	
+	<target name="create_dsp_jar">
+		<mkdir dir="../bin" />
+		<javac srcdir="../src" destdir="../bin">
+			<classpath>
+				<fileset dir="../lib" includes="*.jar" />
+			</classpath>
+		</javac>
+
+		<!-- copy all needed resources to bin dir -->
+		<copy todir="../bin/be/hogent/tarsos/tarsossegmenter/util/configuration">
+			<fileset dir="../src/be/hogent/tarsos/tarsossegmenter/util/configuration">
+				<include name="*.properties"/>
+			</fileset>
+		</copy>
+		
+		<jar destfile="../build/TarsosSegmenterDSP-${version}.jar" filesetmanifest="mergewithoutmain" duplicate="preserve">
+			<manifest>
+				<!-- Standard manifest attributes -->
+				<attribute name="Implementation-Version" value="${version}-${DSTAMP}"/>
+				<attribute name="Built-By" value="${built_by}"/>
+				<attribute name="Created-By" value="${built_by}"/>
+				<attribute name="Built-Date" value="${TODAY}"/>
+			</manifest>
+			
+			<dirset dir="../bin">
+				<exclude name="be/hogent/tarsos/tarsossegmenter/gui/**"/>
+			</dirset>
+			
+			<fileset dir="../bin">
+				<exclude name="be/hogent/tarsos/tarsossegmenter/gui/*.class"/>
+				<exclude name="be/hogent/tarsos/tarsossegmenter/gui/resources/*.*"/>
+			</fileset>
+			
+			
+
+			<!-- TarsosTranscoder -->
+			<zipfileset excludes="META-INF/*.SF" src="../lib/tarsos_transcoder-1.0.jar"/>
+
+			<!-- TarsosDSP -->
+			<zipfileset excludes="META-INF/*.SF" src="../lib/TarsosDSP.jar"/>
+			
 		</jar>
 	</target>
 
