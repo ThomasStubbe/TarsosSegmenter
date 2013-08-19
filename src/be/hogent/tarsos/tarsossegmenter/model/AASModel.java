@@ -93,7 +93,7 @@ public class AASModel {
     }
 
     private AASModel() {
-        guiEnabled = true;
+        guiEnabled = false;
         onlyStructureDetection = false;
         segmentation = new Segmentation();
         loadConfiguration();
@@ -258,8 +258,9 @@ public class AASModel {
 //                cqtcs = cqtAD.getValues();
                 ad.removeAudioProcessor(cqtAD);
             }
-
-            constructSelfSimilarityMatrix();
+            if (guiEnabled){
+            	constructSelfSimilarityMatrix();
+            }
 
 //            mfccs = null;
 //            autoCorrelationcs = null;
@@ -349,7 +350,7 @@ public class AASModel {
         }
     }
 
-    private void constructSelfSimilarityMatrix() {
+    public void constructSelfSimilarityMatrix() {
         float maxMFCC = Float.MIN_VALUE;
         float minMFCC = Float.MAX_VALUE;
         float maxAC = Float.MIN_VALUE;
@@ -693,5 +694,28 @@ public class AASModel {
 	    	default:
 	    		throw new RuntimeException("Please choose a feature origin! (constant in the AASModel class)");
     	}
+    }
+    
+    public float[][] getFeatures(int featureOrigin){
+    	switch (featureOrigin){
+	    	case FEATURE_ORIGIN_MFCC :
+	    		if (mfccs != null && mfccs.length > 0)
+	    			return this.mfccs;
+	    		else 
+	    			throw new RuntimeException("No feautures of that origin available! Are you sure they were calculated?");
+	    	case FEATURE_ORIGIN_CQT :
+	    		if (cqtcs != null && cqtcs.length > 0)
+	    			return this.cqtcs;
+	    		else 
+	    			throw new RuntimeException("No feautures of that origin available! Are you sure they were calculated?");
+	    	case FEATURE_ORIGIN_AUTOCORRELATIE:
+	    		if (autoCorrelationcs != null && autoCorrelationcs.length > 0)
+	    			return this.autoCorrelationcs;
+	    		else 
+	    			throw new RuntimeException("No feautures of that origin available! Are you sure they were calculated?");
+	    	default:
+	    		throw new RuntimeException("Please choose a feature origin! (constants in the AASModel class)");
+		}
+    	
     }
 }

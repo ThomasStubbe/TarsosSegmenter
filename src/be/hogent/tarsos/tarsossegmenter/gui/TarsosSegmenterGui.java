@@ -43,7 +43,11 @@ import be.hogent.tarsos.tarsossegmenter.util.configuration.Configuration;
  */
 public class TarsosSegmenterGui extends JFrame implements AASModelListener, AudioFileListener, ItemListener {
 
-    private Top top;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private Top top;
     private SegmentedWaveFormWrapper waveFormWrapper;
     private MatrixGUI mg;
     private JPanel mgPanel;
@@ -73,6 +77,7 @@ public class TarsosSegmenterGui extends JFrame implements AASModelListener, Audi
 
     private void initialise() {
         this.model = AASModel.getInstance();
+        this.model.setGuiEnabled(true);
         this.model.addModelListener(this);
         this.model.addAudioFileChangedListener(this);
         isCalculating = false;

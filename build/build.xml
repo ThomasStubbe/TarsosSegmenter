@@ -108,6 +108,42 @@
 			
 		</jar>
 	</target>
+	
+	<target name="create_dsp_jar_lite">
+		<mkdir dir="../bin" />
+		<javac srcdir="../src" destdir="../bin">
+			<classpath>
+				<fileset dir="../lib" includes="*.jar" />
+			</classpath>
+		</javac>
+
+		<!-- copy all needed resources to bin dir -->
+		<copy todir="../bin/be/hogent/tarsos/tarsossegmenter/util/configuration">
+			<fileset dir="../src/be/hogent/tarsos/tarsossegmenter/util/configuration">
+				<include name="*.properties"/>
+			</fileset>
+		</copy>
+		
+		<jar destfile="../build/TarsosSegmenterDSPLite-${version}.jar" filesetmanifest="mergewithoutmain" duplicate="preserve">
+			<manifest>
+				<!-- Standard manifest attributes -->
+				<attribute name="Implementation-Version" value="${version}-${DSTAMP}"/>
+				<attribute name="Built-By" value="${built_by}"/>
+				<attribute name="Created-By" value="${built_by}"/>
+				<attribute name="Built-Date" value="${TODAY}"/>
+			</manifest>
+			
+			<dirset dir="../bin">
+				<exclude name="be/hogent/tarsos/tarsossegmenter/gui/**"/>
+			</dirset>
+			
+			<fileset dir="../bin">
+				<exclude name="be/hogent/tarsos/tarsossegmenter/gui/*.class"/>
+				<exclude name="be/hogent/tarsos/tarsossegmenter/gui/resources/*.*"/>
+			</fileset>
+			
+		</jar>
+	</target>
 
 	<target name="javadoc">
 		<javadoc 
