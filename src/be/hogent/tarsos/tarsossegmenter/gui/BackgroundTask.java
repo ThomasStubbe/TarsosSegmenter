@@ -29,7 +29,7 @@ public abstract class BackgroundTask extends SwingWorker<Void, Void> implements 
 
     protected BackgroundTask(String taskName, boolean lengthDetermined) {
         ui = new JPanel(new GridLayout(0, 1));
-        handlers = new ArrayList<>();
+        handlers = new ArrayList();
         progressBar = new JProgressBar();
         determinedLength = lengthDetermined;
         name = taskName;
@@ -59,10 +59,13 @@ public abstract class BackgroundTask extends SwingWorker<Void, Void> implements 
             for (TaskHandler handler : handlers) {
                 handler.taskDone(this);
             }
-        } catch (InterruptedException | ExecutionException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        } catch (InterruptedException e){
+        	 //TODO
+        } catch (ExecutionException e2){
+        	//TODO
         }
+            // TODO Auto-generated catch block
+
 
     }
 

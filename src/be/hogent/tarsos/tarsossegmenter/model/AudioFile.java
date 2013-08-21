@@ -74,7 +74,7 @@ public final class AudioFile {
         }
 
         private AudioFileList() {
-            currentFiles = new HashMap<>();
+            currentFiles = new HashMap<String, String>();
             initializeCurrentFiles();
         }
 
@@ -233,7 +233,7 @@ public final class AudioFile {
      * @return a list of AudioFiles
      */
     public static List<AudioFile> audioFiles(final String... folders) {
-        final List<AudioFile> files = new ArrayList<>();
+        final List<AudioFile> files = new ArrayList<AudioFile>();
         String pattern = Configuration.get(ConfKey.audio_file_name_pattern);
         for (final String folder : folders) {
             List<String> audioFiles = FileUtils.glob(folder, pattern, true);
@@ -272,7 +272,7 @@ public final class AudioFile {
             float frameRate = fileFormat.getFormat().getFrameRate();
             length = (long) (frames / frameRate * 1000);
             //LOG.finest(String.format("Determined the lenght of %s: %s s", originalBasename(), lengthInMilliSeconds));
-        } catch (UnsupportedAudioFileException | IOException e) {
+        } catch (Exception e) {
             //LOG.log(Level.WARNING, "Could not determine audio file length.", e);
         }
         return length;
@@ -286,7 +286,7 @@ public final class AudioFile {
             float frameRate = fileFormat.getFormat().getFrameRate();
             lengtInMicroSeconds = (long) (frame / frameRate * 1000);
             //LOG.finest(String.format("Determined the lenght of %s: %s �s", originalBasename(), lengtInMicroSeconds));
-        } catch (UnsupportedAudioFileException | IOException e) {
+        } catch (Exception e) {
             //LOG.log(Level.WARNING, "Could not determine audio file length.", e);
         }
         return lengtInMicroSeconds;
@@ -315,7 +315,7 @@ public final class AudioFile {
         try {
             fileFormat = AudioSystem.getAudioFileFormat(new File(transcodedPath()));
             //LOG.finest(String.format("Fileformat determined for %s", originalBasename()));
-        } catch (UnsupportedAudioFileException | IOException e) {
+        } catch (Exception e) {
             //LOG.log(Level.WARNING, "Could not determine audio file length.", e);
         }
         return fileFormat;
@@ -370,7 +370,8 @@ public final class AudioFile {
                 player.process(event);
             }
 
-        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+        } catch (Exception e) {
+        	//TODO
         }
     }
 

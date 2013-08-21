@@ -244,7 +244,7 @@ public final class Configuration {
      * @param list The list of strings.
      */
     private static void setList(final ConfKey key, final List<?> list) {
-        List<String> strings = new ArrayList<>();
+        List<String> strings = new ArrayList<String>();
         for (Object o : list) {
             strings.add(o.toString());
         }
@@ -260,7 +260,7 @@ public final class Configuration {
      */
     public static List<String> getList(final ConfKey key) {
         String[] values = get(key).split(SEPARATOR);
-        return new ArrayList<>(Arrays.asList(values));
+        return new ArrayList<String>(Arrays.asList(values));
     }
 
     /**
@@ -297,7 +297,7 @@ public final class Configuration {
      */
     public static void set(final ConfKey key, Object value) {
         if (key == ConfKey.framesize) {
-            value = ConfKey.getClosestFrameSize((int) value);
+            value = ConfKey.getClosestFrameSize((Integer) value);
         }
         if (value instanceof List<?>) {
             setList(key, (List<?>) value);

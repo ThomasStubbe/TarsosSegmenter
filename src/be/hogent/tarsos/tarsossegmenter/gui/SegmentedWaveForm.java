@@ -428,9 +428,12 @@ public final class SegmentedWaveForm extends JPanel implements AudioFileListener
                 new Thread(adp, "Waveform image builder").start();
             }
 
-        } catch (UnsupportedAudioFileException | IOException e) {
-            //@TODO: popup?
+        } catch (UnsupportedAudioFileException e) {
+            //TODO: popup?
             e.printStackTrace();
+        } catch(IOException e2){
+            //TODO: popup?
+            e2.printStackTrace();
         }
 
     }

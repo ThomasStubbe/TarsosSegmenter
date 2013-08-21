@@ -46,7 +46,7 @@ public class Player implements AudioProcessor {
         repeatSelection = false;
         startSelection = 0;
         endSelection = 0;
-        processorsBeforeTimeStretching = new ArrayList<>();
+        processorsBeforeTimeStretching = new ArrayList<AudioProcessor>();
     }
 
     public void load(File file) {
@@ -57,7 +57,7 @@ public class Player implements AudioProcessor {
         AudioFileFormat fileFormat;
         try {
             fileFormat = AudioSystem.getAudioFileFormat(loadedFile);
-        } catch (UnsupportedAudioFileException | IOException e) {
+        } catch (Exception e) {
             throw new Error(e);
         }
         AudioFormat format = fileFormat.getFormat();
@@ -116,7 +116,7 @@ public class Player implements AudioProcessor {
             Thread t = new Thread(dispatcher, "Audio Player Thread");
             t.start();
             setState(PlayerState.PLAYING);
-        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+        } catch (Exception e) {
             throw new Error(e);
         }
     }

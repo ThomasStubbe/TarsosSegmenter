@@ -189,7 +189,7 @@ public class AASModel {
                 File file = new File(audioFile.transcodedPath());
                     ad = AudioDispatcher.fromFile(file, audioFile.fileFormat().getFrameLength(), 0);
                     ad.setStepSizeAndOverlap(frameSize, overlapping);
-            } catch (UnsupportedAudioFileException | IOException e) {
+            } catch (Exception e) {
                 JOptionPane.showMessageDialog(TarsosSegmenterGui.getInstance(), "Could not transcode audiofile: make sure it is an audiofile and that you have access/rights to the file", "Error", JOptionPane.ERROR_MESSAGE);
             }
             float durationInFrames = ((float)ad.durationInFrames()/(float)(frameSize-overlapping+1));

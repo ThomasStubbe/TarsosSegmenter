@@ -342,7 +342,7 @@ public class StructureDetection {
                 SegmentationList segmentationSuggestion = top5Segmentations.get(i);
                 Collections.sort(segmentationSuggestion);
 
-                Map<Character, Character> changeLabelMap = new HashMap<>();
+                Map<Character, Character> changeLabelMap = new HashMap<Character, Character>();
                 String parentLabel = "";
                 char currentLabel = 'A';
                 if (currentSegmentationLevel != AASModel.MACRO_LEVEL) {

@@ -32,7 +32,12 @@ import javax.swing.*;
  */
 public class ConfigurationPanel extends JPanel {
 
-    private final HashMap<JComponent, ConfKey> ConfigurationTextFields;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private final HashMap<JComponent, ConfKey> ConfigurationTextFields;
 
     /**
      * Constructs the ConfigurationPanel
@@ -103,8 +108,7 @@ public class ConfigurationPanel extends JPanel {
                 if (label == null) {
                     label = key.name();
                 }
-                switch (key.getType()) {
-                    case ConfKey.BOOL:
+                if (key.getType() == ConfKey.BOOL) {
                         JCheckBox confCheckBox = new JCheckBox();
                         boolean value = Configuration.getBoolean(key);
 
@@ -124,8 +128,7 @@ public class ConfigurationPanel extends JPanel {
                                 }
                             }
                         });
-                        break;
-                    default:
+                } else {
 
                         JComponent valueComponent;
                         String value2 = Configuration.get(key);
@@ -174,8 +177,8 @@ public class ConfigurationPanel extends JPanel {
                             public void focusGained(FocusEvent e) {
                             }
                         });
-                        break;
                 }
+                
             }
         }
     }

@@ -114,8 +114,9 @@ public final class FileUtils {
 
     private static byte[] createChecksum(String filename, final int numberOfBytes)
             throws NoSuchAlgorithmException, IOException {
-        MessageDigest complete;
-        try (InputStream fis = new FileInputStream(filename)) {
+        MessageDigest complete = null;
+        try {
+        	InputStream fis = new FileInputStream(filename);
             if (numberOfBytes % 1024 != 0) {
                 throw new IllegalArgumentException("Number of bytes should be dividable by 1024.");
             }
@@ -131,6 +132,9 @@ public final class FileUtils {
                 }
                 currentNumberOfBuffers++;
             } while (numRead != -1 && currentNumberOfBuffers < maxNumberOfBuffers);
+        } catch (Exception e){
+        	//TODO: errorafhandeling
+        	e.printStackTrace();
         }
         return complete.digest();
     }
@@ -245,12 +249,16 @@ public final class FileUtils {
                 throw new IllegalArgumentException("File " + name + " does not exist");
             }
             fileReader = new FileReader(file);
-            try (BufferedReader reader = new BufferedReader(fileReader)) {
+            try {
+            	BufferedReader reader = new BufferedReader(fileReader);
                 String inputLine = reader.readLine();
                 while (inputLine != null) {
                     contents.append(inputLine).append("\n");
                     inputLine = reader.readLine();
                 }
+            } catch (Exception e){
+            	//TODO
+            	e.printStackTrace();
             }
         } catch (final IOException i1) {
         }
@@ -271,15 +279,18 @@ public final class FileUtils {
         try {
             connection = url.openConnection();
             final InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream());
-            try (BufferedReader reader = new BufferedReader(inputStreamReader)) {
+            try  {
+            	BufferedReader reader = new BufferedReader(inputStreamReader);
                 String inputLine;
                 inputLine = reader.readLine();
                 while (inputLine != null) {
                     contents.append(new String(inputLine.getBytes(), "UTF-8")).append("\n");
                     inputLine = reader.readLine();
                 }
+            } catch (Exception e){
+            	e.printStackTrace();
             }
-        } catch (final IOException | NullPointerException e) {
+        } catch (final Exception e) {
         }
         return contents.toString();
     }
@@ -291,8 +302,8 @@ public final class FileUtils {
      * @param target The target to save the file to.
      */
     public static void copyFileFromJar(final String source, final String target) {
-        try {
-            try (InputStream inputStream = new FileUtils().getClass().getResourceAsStream(source)) {
+            try  {
+            	InputStream inputStream = new FileUtils().getClass().getResourceAsStream(source);
                 OutputStream out;
                 out = new FileOutputStream(target);
                 final byte[] buffer = new byte[4096];
@@ -302,10 +313,15 @@ public final class FileUtils {
                     len = inputStream.read(buffer);
                 }
                 out.close();
+            } catch (Exception e){
+            	//TODO
+            	e.printStackTrace();
             }
-        } catch (final FileNotFoundException e) {
-        } catch (final IOException e) {
-        }
+//        } catch (final FileNotFoundException e) {
+//        	e.printStackTrace();//TODO
+//        } catch (final IOException e) {
+//        	e.printStackTrace();//TODO
+//        }
     }
 
     /**
@@ -322,7 +338,7 @@ public final class FileUtils {
      */
     public static List<String[]> readCSVFile(final String fileName, final String separator,
             final int expectedColumns) {
-        final List<String[]> data = new ArrayList<>();
+        final List<String[]> data = new ArrayList<String[]>();
         FileReader fileReader;
 
         try {
@@ -331,7 +347,8 @@ public final class FileUtils {
                 throw new IllegalArgumentException("File '" + fileName + "' does not exist");
             }
             fileReader = new FileReader(file);
-            try (BufferedReader in = new BufferedReader(fileReader)) {
+            try {
+            	BufferedReader in = new BufferedReader(fileReader);
                 String inputLine;
                 int lineNumber = 0;
                 inputLine = in.readLine();
@@ -347,6 +364,8 @@ public final class FileUtils {
                     }
                     inputLine = in.readLine();
                 }
+            } catch (Exception e){
+            	e.printStackTrace();//TODO
             }
         } catch (final IOException i1) {
         }
@@ -368,7 +387,7 @@ public final class FileUtils {
     public static List<String> readColumnFromCSVData(final List<String[]> data, final int columnIndex,
             final RowFilter filter) {
         final RowFilter actualFilter = filter == null ? ACCEPT_ALL_ROWFILTER : filter;
-        final List<String> columnData = new ArrayList<>();
+        final List<String> columnData = new ArrayList<String>();
         for (final String[] row : data) {
             if (actualFilter.acceptRow(row)) {
                 columnData.add(row[columnIndex]);
@@ -450,7 +469,7 @@ public final class FileUtils {
      * thrown to indicate a syntax error in a regular-expression pattern.
      */
     public static List<String> glob(final String directory, final String pattern, final boolean recursive) {
-        final List<String> matchingFiles = new ArrayList<>();
+        final List<String> matchingFiles = new ArrayList<String>();
         final Pattern p = Pattern.compile(pattern);
         final File dir = new File(new File(directory).getAbsolutePath());
         glob(dir, p, recursive, matchingFiles);
