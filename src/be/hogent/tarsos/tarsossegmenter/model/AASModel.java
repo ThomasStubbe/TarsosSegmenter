@@ -82,6 +82,7 @@ public class AASModel {
 	private boolean guiEnabled;
 	private boolean onlyStructureDetection;
 	private Segmentation segmentation;
+	private boolean done;
 
 	public static AASModel getInstance() {
 		if (instance == null) {
@@ -91,6 +92,8 @@ public class AASModel {
 	}
 
 	private AASModel() {
+		Configuration.checkForConfigurationAndWriteDefaults();
+        Configuration.configureDirectories();
 		guiEnabled = false;
 		onlyStructureDetection = false;
 		segmentation = new Segmentation();
@@ -156,42 +159,66 @@ public class AASModel {
 
 	public void calculateWithDefaults(AudioFile file, int lowerFilterFreq,
 			int upperFilterFreq) {
-		if (!this.audioFile.transcodedPath().equals(file.transcodedPath().toString())) {
+		done = false;
+		this.onCalculationStarted();
+		if (audioFile == null
+				|| !this.audioFile.transcodedPath().equals(
+						file.transcodedPath().toString())) {
 			this.segmentation.clearAll();
 			this.audioFile = file;
+			onAudioFileChange();
 		}
 		if (!isCalculated()) {
 			this.useMFCC = true;
 			this.useAutoCorrelation = false;
 			this.useCQT = false;
 			this.frameSize = 4096;
-			this.overlapping = 2048;
+			this.overlapping = 1024;
 			this.cqtBins = 0;
 			this.mfccCoef = 40;
 			this.macroEnabled = true;
-			this.mesoEnabled = true;
-			this.microEnabled = true;
+			this.mesoEnabled = false;
+			this.microEnabled = false;
 			this.melfilters = 40;
 			this.lowerFilterFreq = lowerFilterFreq;
 			this.upperFilterFreq = upperFilterFreq;
+
+			Configuration.set(ConfKey.enable_mfcc, useMFCC);
+			Configuration.set(ConfKey.enable_autocorrelation,
+					useAutoCorrelation);
+			Configuration.set(ConfKey.enable_cqt, useCQT);
+			Configuration.set(ConfKey.framesize, frameSize);
+			Configuration.set(ConfKey.overlapping, overlapping);
+			Configuration.set(ConfKey.cqt_bins, cqtBins);
+			Configuration.set(ConfKey.mfcc_coef, mfccCoef);
+			Configuration.set(ConfKey.enable_macro, macroEnabled);
+			Configuration.set(ConfKey.enable_meso, mesoEnabled);
+			Configuration.set(ConfKey.enable_micro, microEnabled);
+			Configuration.set(ConfKey.mfcc_melfilters, melfilters);
+			Configuration.set(ConfKey.lowfilterfreq, lowerFilterFreq);
+			Configuration.set(ConfKey.upperfilterfreq, upperFilterFreq);
+
 			try {
-				File f = new File(file.transcodedPath());
-				ad = AudioDispatcher.fromFile(f, file.fileFormat()
+				File f = new File(audioFile.transcodedPath());
+				ad = AudioDispatcher.fromFile(f, audioFile.fileFormat()
 						.getFrameLength(), 0);
 				ad.setStepSizeAndOverlap(frameSize, overlapping);
 			} catch (Exception e) {
 				JOptionPane
 						.showMessageDialog(
-								TarsosSegmenterGui.getInstance(),
+								null,
 								"Could not transcode audiofile: make sure it is an audiofile and that you have access/rights to the file",
 								"Error", JOptionPane.ERROR_MESSAGE);
 			}
-			float durationInFrames = ((float) ad.durationInFrames() / (float) (frameSize
-					- overlapping + 1));
+			// double amountOfSamples =
+			// audioFile.fileFormat().getFormat().getSampleRate()*ad.durationInSeconds();
+			float durationInFrames = ((float) (ad.durationInFrames() - frameSize) / (float) (frameSize
+					- overlapping + 1)) + 1;
 			this.amountOfFrames = (int) Math.ceil(durationInFrames);
 			final MFCC mfccAD;
 
-			mfccAD = new MFCC(this.frameSize, this.sampleRate, this.melfilters,
+			mfccAD = new MFCC(this.frameSize, audioFile.fileFormat()
+					.getFormat().getSampleRate(), this.melfilters,
 					this.mfccCoef, this.lowerFilterFreq, this.upperFilterFreq);
 			ad.addAudioProcessor(mfccAD);
 			this.mfccs = new float[this.amountOfFrames][];
@@ -209,30 +236,42 @@ public class AASModel {
 
 				@Override
 				public void processingFinished() {
+					System.out.println("MFCC SIZE: "
+							+ AASModel.instance.mfccs.length);
+					done = true;
 				}
 			});
 			ad.run();
-
+			while (!done) {
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
 			ad.removeAudioProcessor(mfccAD);
-			System.gc();
-
+			constructSelfSimilarityMatrix();
 			resultMatrix = new float[similarityMatrix.length][];
 			for (int i = 0; i < similarityMatrix.length; i++) {
 				resultMatrix[i] = new float[similarityMatrix[i].length];
-				System.arraycopy(similarityMatrix[i], 0, resultMatrix[i], 0,
-						similarityMatrix[i].length);
+				System.arraycopy(similarityMatrix[i], 0,
+						resultMatrix[i], 0, similarityMatrix[i].length);
 			}
 			segmentation.clearAll();
-			noveltyScores = NoveltyScore.calculateScore(similarityMatrix,
+			noveltyScores = NoveltyScore.calculateScore(
+					similarityMatrix,
 					audioFile.getLengthInMilliSeconds());
-			StructureDetection sd = new StructureDetection(
-					audioFile.getLengthInMilliSeconds() / 1000f, resultMatrix,
+			StructureDetection sd = new StructureDetection(audioFile
+					.getLengthInMilliSeconds() / 1000f, resultMatrix,
 					MAX_SCALE_VALUE);
 			sd.preProcessing();
+			System.out.println("	Starting structure calculation");
 			sd.run();
+			System.out.println("	structure calculation done");
 			sd = null;
-			System.gc();
+			// System.gc();
 		}
+		this.onCalculationEnd();
 	}
 
 	public void calculate() throws java.lang.OutOfMemoryError {

@@ -57,9 +57,13 @@ public class StructureDetection {
     public void run() {
         currentSegmentationLevel = AASModel.MACRO_LEVEL;
         if (segmentation.getSegmentationPoints(AASModel.MACRO_LEVEL).size() > 0) {
+        	System.out.println("		Starting Macro structure detection");
             allMacroSegmentationParts.clear();
             calculateAllPossibleSegments(segmentation.getSegmentationPoints(AASModel.MACRO_LEVEL), allMacroSegmentationParts);
+            System.out.println("			Possible segments calculated - Size: " + allMacroSegmentationParts.size());
+            System.out.println("			detecting structures");
             findStructures(allMacroSegmentationParts, null);
+            System.out.println("		Macro structure detection done - Size: " + segmentation.getMacroSuggestions().get(0).size());
             if (Configuration.getBoolean(ConfKey.enable_meso)) {
                 for (int i = 0; i < segmentation.getAmountOfMacroSuggestions(); i++) {
                     SegmentationList macroSegmentationList = segmentation.getMacroSuggestions().get(i);
@@ -117,6 +121,7 @@ public class StructureDetection {
                     threshold = 0.2f;
                     break;
             }
+            System.out.println("				parameters set - starting match calculations");
             //Etnische muziek: i=1 en allSegmentationParts.size()-1 voor intro en outro niet te vergelijken
             HashSet<MatchCalculationThread> threadSet = new HashSet();
             for (int i = start; i < end; i++) {
@@ -128,6 +133,7 @@ public class StructureDetection {
                     }
                 }
             }
+            System.out.println("				match calculations done - waiting for threads to close");
             Iterator it = threadSet.iterator();
             while (it.hasNext()) {
                 try {
@@ -135,7 +141,9 @@ public class StructureDetection {
                 } catch (InterruptedException e) {
                 }
             }
+            System.out.println("				threads closed - searching equal parts");
             searchEqualParts(queue, parent);
+            System.out.println("				searching equal parts done");
             ArrayList<SegmentationList> top5Segmentations;
             if (parent != null) {
                 if (!parent.hasSubSegmentation()) {

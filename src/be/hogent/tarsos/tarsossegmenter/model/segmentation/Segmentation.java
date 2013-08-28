@@ -558,10 +558,13 @@ public class Segmentation {
 		switch (segmentationLevel) {
 		case AASModel.MACRO_LEVEL:
 			segmentationLists = this.getMacroSegmentationLists();
+			break;
 		case AASModel.MESO_LEVEL:
 			segmentationLists = this.getMesoSegmentationLists();
+			break;
 		case AASModel.MICRO_LEVEL:
 			segmentationLists = this.getMicroSegmentationLists();
+			break;
 		}
 		if (segmentationLists != null && !segmentationLists.isEmpty()){
 			for (SegmentationList sl : segmentationLists){
