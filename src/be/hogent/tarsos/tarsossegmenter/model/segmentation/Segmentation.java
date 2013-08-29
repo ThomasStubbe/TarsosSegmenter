@@ -569,7 +569,7 @@ public class Segmentation {
 		if (segmentationLists != null && !segmentationLists.isEmpty()){
 			for (SegmentationList sl : segmentationLists){
 				for (SegmentationPart sp : sl){
-					segments.add(new Segment(sp.getBegin(), sp.getEnd(), sp.getLabel()));
+					segments.add(new Segment(sp.getBegin(), sp.getEnd(), sp.getLabel(), sp.getColor()));
 				}
 			}
 		}

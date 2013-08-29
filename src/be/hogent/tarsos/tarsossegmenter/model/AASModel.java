@@ -177,7 +177,7 @@ public class AASModel {
 			this.cqtBins = 0;
 			this.mfccCoef = 40;
 			this.macroEnabled = true;
-			this.mesoEnabled = false;
+			this.mesoEnabled = true;
 			this.microEnabled = false;
 			this.melfilters = 40;
 			this.lowerFilterFreq = lowerFilterFreq;
