@@ -178,7 +178,7 @@ public class AASModel {
 			this.mfccCoef = 40;
 			this.macroEnabled = true;
 			this.mesoEnabled = true;
-			this.microEnabled = false;
+			this.microEnabled = true;
 			this.melfilters = 40;
 			this.lowerFilterFreq = lowerFilterFreq;
 			this.upperFilterFreq = upperFilterFreq;
@@ -236,8 +236,6 @@ public class AASModel {
 
 				@Override
 				public void processingFinished() {
-					System.out.println("MFCC SIZE: "
-							+ AASModel.instance.mfccs.length);
 					done = true;
 				}
 			});
@@ -265,9 +263,7 @@ public class AASModel {
 					.getLengthInMilliSeconds() / 1000f, resultMatrix,
 					MAX_SCALE_VALUE);
 			sd.preProcessing();
-			System.out.println("	Starting structure calculation");
 			sd.run();
-			System.out.println("	structure calculation done");
 			sd = null;
 			// System.gc();
 		}
