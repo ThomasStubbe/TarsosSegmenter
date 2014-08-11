@@ -38,7 +38,7 @@
 		<jar destfile="../build/TarsosSegmenter-${version}.jar" filesetmanifest="mergewithoutmain" duplicate="preserve">
 
 			<manifest>
-				<attribute name="Main-Class" value="be.hogent.tarsos.tarsossegmenter.TarsosSegmenter"/>
+				<attribute name="Main-Class" value="be.tarsos.tarsossegmenter.TarsosSegmenter"/>
 				<!-- Standard manifest attributes -->
 				<attribute name="Implementation-Version" value="${version}-${DSTAMP}"/>
 				<attribute name="Built-By" value="${built_by}"/>
