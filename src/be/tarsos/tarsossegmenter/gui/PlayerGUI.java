@@ -1,7 +1,7 @@
 package be.tarsos.tarsossegmenter.gui;
 
-import be.hogent.tarsos.dsp.AudioEvent;
-import be.hogent.tarsos.dsp.AudioProcessor;
+import be.tarsos.dsp.AudioEvent;
+import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.tarsossegmenter.controller.listeners.AudioFileListener;
 import be.tarsos.tarsossegmenter.model.AASModel;
 import be.tarsos.tarsossegmenter.model.player.Player;

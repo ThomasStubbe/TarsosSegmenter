@@ -1,12 +1,12 @@
 package be.tarsos.tarsossegmenter.model;
 
-import be.hogent.tarsos.transcoder.ffmpeg.EncoderException;
-import be.hogent.tarsos.dsp.AudioDispatcher;
-import be.hogent.tarsos.dsp.AudioEvent;
-import be.hogent.tarsos.dsp.AudioProcessor;
-import be.hogent.tarsos.dsp.AutoCorrelation;
-import be.hogent.tarsos.dsp.ConstantQ;
-import be.hogent.tarsos.dsp.mfcc.MFCC;
+import be.tarsos.transcoder.ffmpeg.EncoderException;
+import be.tarsos.dsp.AudioDispatcher;
+import be.tarsos.dsp.AudioEvent;
+import be.tarsos.dsp.AudioProcessor;
+import be.tarsos.dsp.AutoCorrelation;
+import be.tarsos.dsp.ConstantQ;
+import be.tarsos.dsp.mfcc.MFCC;
 import be.tarsos.tarsossegmenter.controller.listeners.AASModelListener;
 import be.tarsos.tarsossegmenter.controller.listeners.AudioFileListener;
 import be.tarsos.tarsossegmenter.gui.BackgroundTask;

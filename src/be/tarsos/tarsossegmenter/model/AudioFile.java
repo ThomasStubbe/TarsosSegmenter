@@ -7,10 +7,10 @@
  */
 package be.tarsos.tarsossegmenter.model;
 
-import be.hogent.tarsos.dsp.AudioEvent;
-import be.hogent.tarsos.dsp.AudioPlayer;
-import be.hogent.tarsos.dsp.util.AudioFloatConverter;
-import be.hogent.tarsos.transcoder.ffmpeg.EncoderException;
+import be.tarsos.dsp.AudioEvent;
+import be.tarsos.dsp.AudioPlayer;
+import be.tarsos.dsp.util.AudioFloatConverter;
+import be.tarsos.transcoder.ffmpeg.EncoderException;
 import be.tarsos.tarsossegmenter.util.AudioTranscoder;
 import be.tarsos.tarsossegmenter.util.StringUtils;
 import be.tarsos.tarsossegmenter.util.TimeUnit;

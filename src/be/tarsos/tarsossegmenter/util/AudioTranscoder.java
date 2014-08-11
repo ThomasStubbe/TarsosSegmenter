@@ -7,10 +7,10 @@
  */
 package be.tarsos.tarsossegmenter.util;
 
-import be.hogent.tarsos.transcoder.Attributes;
-import be.hogent.tarsos.transcoder.DefaultAttributes;
-import be.hogent.tarsos.transcoder.Transcoder;
-import be.hogent.tarsos.transcoder.ffmpeg.EncoderException;
+import be.tarsos.transcoder.Attributes;
+import be.tarsos.transcoder.DefaultAttributes;
+import be.tarsos.transcoder.Transcoder;
+import be.tarsos.transcoder.ffmpeg.EncoderException;
 import be.tarsos.tarsossegmenter.util.configuration.ConfKey;
 import be.tarsos.tarsossegmenter.util.configuration.Configuration;
 import be.tarsos.tarsossegmenter.util.io.FileUtils;

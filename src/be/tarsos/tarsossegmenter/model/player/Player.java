@@ -10,8 +10,8 @@
  */
 package be.tarsos.tarsossegmenter.model.player;
 
-import be.hogent.tarsos.dsp.*;
-import be.hogent.tarsos.dsp.WaveformSimilarityBasedOverlapAdd.Parameters;
+import be.tarsos.dsp.*;
+import be.tarsos.dsp.WaveformSimilarityBasedOverlapAdd.Parameters;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
